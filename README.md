@@ -1,418 +1,243 @@
-\# Kubernetes Pod Monitoring and Alert System
+# Kubernetes Pod Monitoring and Alert System
 
+A Python-based Kubernetes monitoring project that detects five common Pod issues and sends alerts through the console and email. The project uses the Kubernetes Python client to inspect Pod status and help identify failures in a local Kubernetes cluster.
 
+## Project Overview
 
-A Python-based Kubernetes monitoring project that detects common Pod failures and sends alerts through the console and email. The system uses the Kubernetes Python client to inspect Pod status and identify issues that may require attention.
+Kubernetes applications can experience failures due to application crashes, scheduling problems, invalid container images, memory limits, and readiness probe failures.
 
+This project automates the detection of five common Kubernetes Pod issues and provides notifications to help developers troubleshoot problems.
 
+## Key Features
 
-\## Project Overview
+* Detects CrashLoopBackOff errors.
+* Detects Pods stuck in the Pending state.
+* Detects ImagePullBackOff and ErrImagePull errors.
+* Detects containers terminated due to OOMKilled.
+* Detects Pods that are not Ready.
+* Displays alerts in the terminal.
+* Supports email notifications through SMTP.
+* Connects to Kubernetes using the Python client.
 
+## Kubernetes Issues Detected
 
+| Issue            | Description                                                         |
+| ---------------- | ------------------------------------------------------------------- |
+| CrashLoopBackOff | A container repeatedly crashes and Kubernetes retries it.           |
+| Pending          | A Pod cannot be scheduled or has not progressed to running.         |
+| ImagePullBackOff | Kubernetes cannot pull the required container image.                |
+| OOMKilled        | A container was terminated after exceeding its memory allowance.    |
+| Not Ready        | A Pod fails its readiness checks and is not ready to serve traffic. |
 
-Kubernetes Pods can fail for several reasons, including application crashes, scheduling problems, incorrect container images, and memory limits. This project automates the detection of five common Kubernetes Pod issues and helps administrators identify problems quickly.
+## Technology Stack
 
+* **Programming Language:** Python
+* **Container Orchestration:** Kubernetes
+* **Local Kubernetes Environment:** Minikube
+* **Container Runtime:** Docker
+* **Kubernetes API:** Kubernetes Python Client
+* **Notifications:** Console alerts and SMTP email
+* **Development Environment:** Windows PowerShell
 
-
-\## Key Features
-
-
-
-\* Detects CrashLoopBackOff errors.
-
-\* Detects Pods stuck in the Pending state.
-
-\* Detects ImagePullBackOff and ErrImagePull errors.
-
-\* Detects containers terminated due to out-of-memory (OOM) errors.
-
-\* Detects Pods that are not ready.
-
-\* Displays alerts in the terminal.
-
-\* Sends email notifications for detected issues.
-
-\* Uses Python and the Kubernetes API to inspect Pod status.
-
-
-
-\## Kubernetes Issues Detected
-
-
-
-| Issue            | Description                                                                          |
-
-| ---------------- | ------------------------------------------------------------------------------------ |
-
-| CrashLoopBackOff | A container repeatedly crashes and Kubernetes attempts to restart it.                |
-
-| Pending          | A Pod cannot yet be scheduled or started successfully.                               |
-
-| ImagePullBackOff | Kubernetes cannot pull the required container image.                                 |
-
-| OOMKilled        | A container was terminated because it exceeded its memory limit or available memory. |
-
-| Not Ready        | A Pod is running or exists but is not reporting readiness.                           |
-
-
-
-\## Technology Stack
-
-
-
-\* Python
-
-\* Kubernetes
-
-\* Kubernetes Python Client
-
-\* Minikube
-
-\* Docker
-
-\* SMTP and Gmail for email alerts
-
-\* PowerShell (Windows development environment)
-
-
-
-\## Project Structure
-
-
+## Project Structure
 
 ```text
-
 K8 Monitoring System/
-
 ├── main.py
-
-├── kubernetes\_client.py
-
+├── kubernetes_client.py
 ├── requirements.txt
-
-├── test\_email.py
-
+├── test_email.py
 ├── detectors/
-
-│   ├── \_\_init\_\_.py
-
+│   ├── __init__.py
 │   ├── crashloop.py
-
 │   ├── pending.py
-
-│   ├── image\_pull.py
-
+│   ├── image_pull.py
 │   ├── oom.py
-
 │   └── readiness.py
-
-└── notifications/
-
-&#x20;   ├── \_\_init\_\_.py
-
-&#x20;   ├── console.py
-
-&#x20;   └── email.py
-
+├── notifications/
+│   ├── __init__.py
+│   ├── console.py
+│   └── email.py
+└── screenshots/
+    ├── monitoring-output.png
+    └── email-alert.png
 ```
 
+## Prerequisites
 
+Install the following tools before running the project:
 
-\## Prerequisites
+* Python 3
+* Docker Desktop
+* Minikube
+* kubectl
+* Git
 
+## Installation and Setup
 
+### 1. Clone the repository
 
-Before running the project, install or configure:
-
-
-
-\* Python 3
-
-\* Docker Desktop
-
-\* Minikube
-
-\* kubectl
-
-\* Git
-
-\* A Kubernetes cluster accessible through your local kubeconfig
-
-
-
-\## Installation and Setup
-
-
-
-\### 1. Clone the repository
-
-
-
-```bash
-
-git clone https://github.com/YOUR-USERNAME/kubernetes-pod-monitoring-system.git
-
+```powershell
+git clone https://github.com/Shashanka2911/kubernetes-pod-monitoring-system.git
 cd kubernetes-pod-monitoring-system
-
 ```
 
-
-
-Replace `YOUR-USERNAME` with your GitHub username.
-
-
-
-\### 2. Create and activate a Python virtual environment
-
-
-
-On Windows PowerShell:
-
-
+### 2. Create and activate a virtual environment
 
 ```powershell
-
 python -m venv venv
-
-.\\venv\\Scripts\\Activate.ps1
-
+.\venv\Scripts\Activate.ps1
 ```
 
-
-
-\### 3. Install dependencies
-
-
+### 3. Install dependencies
 
 ```powershell
-
 pip install -r requirements.txt
-
 ```
 
-
-
-\### 4. Start the local Kubernetes cluster
-
-
+### 4. Start Minikube
 
 ```powershell
-
 minikube start --driver=docker
-
 kubectl config current-context
-
 kubectl get nodes
-
 ```
 
+Confirm that the current context is `minikube` and the node is Ready.
 
+## Create Test Kubernetes Issues
 
-Ensure that the current context is `minikube` and the node is Ready.
+Run the following commands in PowerShell to create test Pods in your development cluster.
 
-
-
-\### 5. Configure email notifications
-
-
-
-Set the following environment variables in PowerShell:
-
-
+### 1. CrashLoopBackOff
 
 ```powershell
-
-$env:SMTP\_HOST = "smtp.gmail.com"
-
-$env:SMTP\_PORT = "587"
-
-$env:SMTP\_USERNAME = "your-email@gmail.com"
-
-$env:SMTP\_PASSWORD = "your-google-app-password"
-
-$env:ALERT\_EMAIL = "recipient@example.com"
-
-```
-
-
-
-Use a Google App Password if your Gmail account supports it. Replace the example values with your own credentials. Never commit passwords, App Passwords, or other secrets to GitHub.
-
-
-
-These variables apply to the current PowerShell session. Set them again in a new session if needed.
-
-
-
-\### 6. Run the monitoring script
-
-
-
-```powershell
-
-python main.py
-
-```
-
-
-
-The script connects to the configured Kubernetes cluster, scans Pods in the configured namespace, and reports detected issues. Email alerts depend on valid SMTP configuration.
-
-
-
-\## Testing
-
-
-
-Check the Kubernetes cluster and Pods:
-
-
-
-```powershell
-
-kubectl get nodes
-
-kubectl get pods -A
-
-```
-
-
-
-To test detection logic, create test workloads that reproduce the relevant failure conditions in a local development cluster. Use caution when testing resource exhaustion or crash loops.
-
-
-
-To test email notifications:
-
-
-
-```powershell
-
-python test\_email.py
-
-```
-
-
-
-\## Future Improvements
-
-
-
-\* Continuous monitoring with a configurable polling interval.
-
-\* Monitoring multiple namespaces.
-
-\* Avoiding repeated notifications for the same issue.
-
-\* Logging alerts to a file.
-
-\* Adding Prometheus and Grafana integration.
-
-\* Adding unit tests for all detector functions.
-
-\* Supporting configurable alert thresholds.
-
-
-
-\## Learning Outcomes
-
-
-
-This project demonstrates practical experience with Python automation, Kubernetes Pod troubleshooting, container orchestration, API integration, and email-based alerting.
-
-
-
-
-
-commands to Run this project:
-
-Step 1: Start Kubernetes and check the cluster
-
-cmd:cd "D:\\K8 Monitoring System"
-
-.\\venv\\Scripts\\Activate.ps1
-
-minikube start --driver=docker
-
-kubectl get nodes
-
-
-
-Step 2: Create the five Kubernetes test issues
-
-
-
-1\. CrashLoopBackOff
-
-
-
 kubectl run crashloop-test --image=busybox:1.36 --restart=Never -- /bin/sh -c "exit 1"
+```
 
+### 2. Pending Pod
 
-
-2\. Pending Pod
-
-
-
+```powershell
 kubectl run pending-test --image=busybox:1.36 --requests=cpu=100 --command -- sleep 3600
+```
 
+The CPU request is deliberately very high and should leave the Pod unschedulable on a typical local Minikube node.
 
+### 3. ImagePullBackOff
 
-3\. ImagePullBackOff
-
-
-
+```powershell
 kubectl run imagepull-test --image=invalid-image-name-xyz:latest
+```
 
+This uses a deliberately invalid image name to exercise image-pull error detection.
 
+### 4. OOMKilled
 
-4\. OOMKilled
+```powershell
+kubectl run oom-test --image=busybox:1.36 --restart=Never --limits=memory=10Mi -- /bin/sh -c 'x=; while true; do x=${x}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx; done'
+```
 
+**Warning:** This test intentionally consumes memory. Run it only in your development cluster and delete the Pod afterward.
 
+### 5. Not Ready
 
-kubectl run oom-test --image=busybox:1.36 --restart=Never --limits=memory=10Mi -- /bin/sh -c "x=; while true; do x=${x}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx; done"
+First create the Pod:
 
-
-
-5\. Not Ready
-
-
-
+```powershell
 kubectl run notready-test --image=busybox:1.36 --restart=Never --command -- /bin/sh -c "sleep 3600"
+```
 
-kubectl patch pod notready-test -p '{"spec":{"containers":\[{"name":"notready-test","image":"busybox:1.36","command":\["/bin/sh","-c","sleep 3600"],"readinessProbe":{"exec":{"command":\["/bin/sh","-c","exit 1"]},"initialDelaySeconds":2,"periodSeconds":3}}]}}'
+Then configure a readiness probe that fails:
 
+```powershell
+kubectl patch pod notready-test --type=strategic -p '{"spec":{"containers":[{"name":"notready-test","readinessProbe":{"exec":{"command":["/bin/sh","-c","exit 1"]},"initialDelaySeconds":2,"periodSeconds":3}}]}}'
+```
 
+## Run the Monitoring System
 
-Step 3: Check the Pod statuses
+### 1. Check Pod status
 
+```powershell
 kubectl get pods
-
 kubectl get pods -o wide
+```
 
+### 2. Run the Python monitoring script
 
-
-Step 4: Run your Python monitoring project
-
+```powershell
 python main.py
+```
 
+The script scans the configured namespace and reports issues detected by the implemented detector functions. The current implementation performs a single scan each time it is run.
 
+### 3. Test email notifications
 
-Output:
+Configure these environment variables in PowerShell using your own credentials:
 
+```powershell
+$env:SMTP_HOST = "smtp.gmail.com"
+$env:SMTP_PORT = "587"
+$env:SMTP_USERNAME = "your-email@gmail.com"
+$env:SMTP_PASSWORD = "your-google-app-password"
+$env:ALERT_EMAIL = "recipient@example.com"
+```
 
+Use a Google App Password when required by your Gmail configuration. Never commit real passwords or credentials to GitHub.
 
+Run the email test:
 
+```powershell
+python test_email.py
+```
 
+Email delivery requires valid SMTP credentials and working network access.
 
+## Verify and Clean Up Test Pods
 
-\## Author
+View Pod states:
 
+```powershell
+kubectl get pods
+kubectl describe pods
+```
 
+After testing, delete the test Pods:
 
-\*\*Shashanka\*\*
+```powershell
+kubectl delete pod crashloop-test pending-test imagepull-test oom-test notready-test --ignore-not-found
+```
 
+## Project Output Screenshots
 
+Add screenshots of your actual program output to the `screenshots/` folder.
 
-GitHub: https://github.com/Shashanka2911/kubernetes-pod-monitoring-system
+### Kubernetes Monitoring Console Output
 
+![Kubernetes Monitoring Console Output](screenshots/monitoring-output.png)
+
+### Email Alert Notification
+
+![Email Alert Notification](screenshots/email-alert.png)
+
+Replace the example screenshot filenames with the actual names of your images if they differ.
+
+## Future Improvements
+
+* Continuous monitoring with a configurable polling interval.
+* Support for monitoring multiple namespaces.
+* Duplicate alert suppression.
+* File-based logging and alert history.
+* Prometheus and Grafana integration.
+* Automated unit tests for all detector functions.
+
+## Learning Outcomes
+
+This project demonstrates practical experience with Python automation, Kubernetes Pod troubleshooting, container orchestration, API integration, and email notifications.
+
+## Author
+
+**Shashanka**
+
+GitHub: [Shashanka2911](https://github.com/Shashanka2911)
+
+Project Repository: [Kubernetes Pod Monitoring and Alert System](https://github.com/Shashanka2911/kubernetes-pod-monitoring-system)
