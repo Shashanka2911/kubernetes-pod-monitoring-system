@@ -1,0 +1,10 @@
+﻿def send_console_notification(pod_name, issue, namespace="default"):
+    print()
+    print("=" * 40)
+    print("       KUBERNETES ALERT")
+    print("=" * 40)
+    print(f"Namespace : {namespace}")
+    print(f"Pod       : {pod_name}")
+    print(f"Issue     : {issue}")
+    print("=" * 40)
+    print()
